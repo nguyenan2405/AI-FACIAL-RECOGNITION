@@ -1,2 +1,3 @@
-# AI-FACIAL-RECOGNITION
-This is a project of a group of CSE students from VGU
+# Attendance Check with Artificial Intelligence
+This is a small project of a group of CSE students from VGU.
+In this project, we mean to use AI to assist in checking student's attendance.
