@@ -12,8 +12,8 @@ from firebase_admin import storage
 # Initialize Firebase Admin app using service account credentials
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://facedectectionh-default-rtdb.firebaseio.com/",
-    "storageBucket": "gs://facedectectionh.appspot.com"
+    "databaseURL": "https://facerecognitionmems-default-rtdb.firebaseio.com/",
+    "storageBucket": "gs://facerecognitionmems.appspot.com"
 })
 
 # Get a reference to the storage bucket

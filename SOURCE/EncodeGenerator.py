@@ -1,7 +1,7 @@
-import cv2  # Import OpenCV library for image processing
-import face_recognition  # Import face_recognition library for facial recognition
-import pickle  # Import pickle library for data serialization (saving data)
-import os  # Import os library for file system interaction
+import cv2
+import face_recognition
+import pickle
+import os
 
 
 def read_images_from_subdirectories(dataset_dir):
@@ -15,7 +15,7 @@ def read_images_from_subdirectories(dataset_dir):
     Returns:
         tuple: A tuple containing two lists:
                - imgList (list): A list of loaded images.
-               - studentIds (list): A list of corresponding student IDs extracted from filenames.
+               - studentIds (list): A list of correspondinưg student IDs extracted from filenames.
     """
 
     imgList = []  # Initialize an empty list to store images
@@ -46,13 +46,15 @@ def read_images_from_subdirectories(dataset_dir):
 
 def find_encodings(images_list):
     """
-    This function finds facial encodings for a list of images.
+    This function finds facial encodings for a list of images,
+    handling cases where no faces are detected.
 
     Args:
         images_list (list): A list of loaded images.
 
     Returns:
-        list: A list of facial encodings corresponding to the input images.
+        list: A list of facial encodings corresponding to the input images,
+              or an empty list if no faces are detected in any image.
     """
 
     encode_list = []  # Initialize an empty list to store facial encodings
@@ -60,13 +62,21 @@ def find_encodings(images_list):
         try:
             # Convert the image to RGB format (required by face_recognition)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            encode = face_recognition.face_encodings(img)[0]  # Extract facial encoding for the image
-            encode_list.append(encode)  # Add the encoding to the list
+
+            # Get list of encodings (might be empty)
+            encode = face_recognition.face_encodings(img)
+
+            # Handle empty encoding gracefully (no faces detected)
+            if len(encode) > 0:
+                encode_list.append(encode[0])  # Add the first encoding (if it exists)
+            else:
+                print(f"No face detected in image.")
+
         except Exception as e:
             print(f"Error processing image: {str(e)}")
             continue  # Skip to the next image if there's an error
 
-    return encode_list  # Return the list of facial encodings
+    return encode_list  # Return the list of facial encodings (or empty list)
 
 
 if __name__ == "__main__":
