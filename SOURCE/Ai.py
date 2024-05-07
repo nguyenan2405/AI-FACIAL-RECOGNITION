@@ -16,7 +16,7 @@ import sys
 
 FEED_ID = "187260"
 ADAFRUIT_IO_USERNAME = "nguyenan"
-ADAFRUIT_IO_KEY = "aio_tAoI21BUgh89IhMnj9i3vRUAIhjH"
+ADAFRUIT_IO_KEY = "aio_qZYw60cHL0qWhrN3R1jbNEF3CIVJ"
 user = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
 
 #MQTT Publish
@@ -48,7 +48,6 @@ def publish_image(image):
     jpg_to_txt = base64.b64encode(memory_buffer)
     if len(jpg_to_txt) < 102400:
         client.publish("webcam", jpg_to_txt)
-
 
 # Initialize Firebase Admin app using service account credentials
 cred = credentials.Certificate("serviceAccountKey.json")
@@ -147,7 +146,7 @@ while True:
                 cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0), 2)
 
                 # Display student information
-                # Trong vòng lặp while, phần hiển thị thông tin sinh viên
+                # In the while loop, show the information of students
                 cv2.putText(img, f"Name: {studentInfo['Name']}", (bbox[0], bbox[1] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 0, 0), 1, cv2.LINE_AA)
                 cv2.putText(img, f"ID: {studentInfo['ID']}", (bbox[0], bbox[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -158,9 +157,9 @@ while True:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
 
                 #Send data to 3 different AdafruitIO feeds: 1 with StudentID, 1 with StudentName and 1 for Real-time Webcam
+                publish_image(img)
                 user.send_data("studentid", str(studentInfo['ID']))
                 user.send_data("studentname", str(studentInfo['Name']))
-                publish_image(img)
 
     for id, imgStudent in zip(ids, imgStudents):
         print(f"ID: {id}, Student Info: {imgStudent}")
