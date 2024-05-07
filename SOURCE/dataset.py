@@ -4,7 +4,7 @@ import time
 
 # Get the number of new labels from the user
 num = int(input("The number of new labels you want to add: "))
-number_images = 50
+number_images = 25
 
 # Create the "Dataset" directory if it doesn't exist
 os.makedirs("Dataset", exist_ok=True)  # Command: `mkdir -p Dataset` (if using Linux/macOS)

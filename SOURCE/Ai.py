@@ -9,11 +9,51 @@ from firebase_admin import credentials
 from firebase_admin import db
 from firebase_admin import storage
 
+# Import AdafruitIO account and initialize a User
+from Adafruit_IO import Client, Feed, MQTTClient
+import base64
+import sys
+
+FEED_ID = "187260"
+ADAFRUIT_IO_USERNAME = "nguyenan"
+ADAFRUIT_IO_KEY = "aio_qZYw60cHL0qWhrN3R1jbNEF3CIVJ"
+user = Client(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+
+#MQTT Publish
+def connected(client):
+    print("Connected to the AIO server !!!! ")
+    client.subscribe(FEED_ID)
+
+def subscribe(client, userdata, mid, granted_qos ):
+    print("Subscribed to TOPIC !!!")
+
+def disconnected(client):
+    print ("Disconnected from the AIO server !!!")
+    sys.exit (1)
+
+def message(client, feed_id, payload):
+    print(" Received : " + payload )
+
+client = MQTTClient(ADAFRUIT_IO_USERNAME, ADAFRUIT_IO_KEY)
+client.on_connect = connected
+client.on_disconnect = disconnected
+client.on_message = message
+client.on_subscribe = subscribe
+client.connect()
+client.loop_background()
+
+def publish_image(image):
+    new_image = cv2.resize(image, (800, 600))
+    image_encode, memory_buffer = cv2.imencode(".jpg", new_image, [cv2.IMWRITE_JPEG_QUALITY, 95])
+    jpg_to_txt = base64.b64encode(memory_buffer)
+    if len(jpg_to_txt) < 102400:
+        client.publish("webcam", jpg_to_txt)
+
 # Initialize Firebase Admin app using service account credentials
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://facedectectionh-default-rtdb.firebaseio.com/",
-    "storageBucket": "gs://facedectectionh.appspot.com"
+    "databaseURL": "https://facerecognitionmems-default-rtdb.firebaseio.com/",
+    "storageBucket": "gs://facerecognitionmems.appspot.com"
 })
 
 # Get a reference to the storage bucket
@@ -106,7 +146,7 @@ while True:
                 cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0), 2)
 
                 # Display student information
-                # Trong vòng lặp while, phần hiển thị thông tin sinh viên
+                # In the while loop, show the information of students
                 cv2.putText(img, f"Name: {studentInfo['Name']}", (bbox[0], bbox[1] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (255, 0, 0), 1, cv2.LINE_AA)
                 cv2.putText(img, f"ID: {studentInfo['ID']}", (bbox[0], bbox[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
@@ -115,6 +155,11 @@ while True:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
                 cv2.putText(img, f"Intake: {studentInfo['Intake']}", (bbox[0], bbox[1] + bbox[3] + 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
+
+                #Send data to 3 different AdafruitIO feeds: 1 with StudentID, 1 with StudentName and 1 for Real-time Webcam
+                publish_image(img)
+                user.send_data("studentid", str(studentInfo['ID']))
+                user.send_data("studentname", str(studentInfo['Name']))
 
     for id, imgStudent in zip(ids, imgStudents):
         print(f"ID: {id}, Student Info: {imgStudent}")
